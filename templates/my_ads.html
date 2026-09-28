@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mening e'lonlarim — eloncha.uz</title>
+    
+    <!-- Sayt logotipi -->
+    <link rel="icon" href="{{ url_for('static', filename='logo.png') }}" type="image/png">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #ffffff; padding: 30px 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1e293b; }
+        .card-job { border: 1px solid #e2e8f0; border-radius: 16px; background: #fff; overflow: hidden; transition: 0.2s; }
+        .card-job:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        .job-img { width: 100%; height: 160px; object-fit: cover; border-bottom: 1px solid #e2e8f0; }
+        
+        /* Logotip orqasidagi to'q ko'k sharchalar effekti */
+        .logo-container {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .logo-glow-1 {
+            position: absolute;
+            width: 45px;
+            height: 45px;
+            background: #1e3a8a;
+            border-radius: 50%;
+            filter: blur(8px);
+            opacity: 0.7;
+            top: -5px;
+            left: -5px;
+        }
+        .logo-glow-2 {
+            position: absolute;
+            width: 35px;
+            height: 35px;
+            background: #312e81;
+            border-radius: 50%;
+            filter: blur(6px);
+            opacity: 0.6;
+            bottom: -5px;
+            right: -5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header / Sarlavha -->
+        <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-3">
+                <div class="logo-container">
+                    <div class="logo-glow-1"></div>
+                    <div class="logo-glow-2"></div>
+                    <img src="{{ url_for('static', filename='logo.png') }}" class="rounded-circle position-relative border border-primary shadow-sm" width="40" height="40" alt="logo">
+                </div>
+                <h3 class="fw-bold text-primary mb-0">Mening e'lonlarim</h3>
+            </div>
+            <div>
+                <a href="/add-job" class="btn btn-primary btn-sm rounded-pill px-3 fw-semibold"><i class="fa-solid fa-plus me-1"></i> Yangi e'lon</a>
+                <a href="/" class="btn btn-outline-secondary btn-sm rounded-pill px-3">Bosh sahifa</a>
+            </div>
+        </div>
+
+        <!-- E'lonlar ro'yxati -->
+        <div class="row g-4">
+            {% for job in jobs %}
+            <div class="col-md-4">
+                <div class="card-job h-100 d-flex flex-column justify-content-between shadow-sm">
+                    <div>
+                        {% if job.job_img %}
+                            <a href="{{ url_for('view_ad', job_id=job.id) }}">
+                                <img src="{{ url_for('static', filename='uploads/' + job.job_img) }}" alt="Rasm" class="job-img">
+                            </a>
+                        {% endif %}
+                        <div class="p-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge {% if job.status == 'active' %}bg-success{% else %}bg-warning text-dark{% endif %} small px-3 py-1 rounded-pill">
+                                    {% if job.status == 'active' %}Faol{% else %}Moderatsiyada{% endif %}
+                                </span>
+                                <span class="text-muted small"><i class="fa-solid fa-location-dot text-danger"></i> {{ job.region }}</span>
+                            </div>
+                            <span class="badge {{ job.badge_color }} mb-2 small px-2 py-1">{{ job.category }} / {{ job.sub_category }}</span>
+                            <a href="{{ url_for('view_ad', job_id=job.id) }}" class="text-decoration-none">
+                                <h5 class="fw-bold text-dark fs-6 mb-1">{{ job.title }}</h5>
+                            </a>
+                            <p class="text-success small fw-bold mb-1"><i class="fa-solid fa-wallet"></i> {{ job.salary }}</p>
+                            <p class="text-secondary small text-truncate mb-2">{{ job.description }}</p>
+                            
+                            <!-- Statistika ko'rsatkichi -->
+                            <div class="d-flex gap-3 text-muted small border-top pt-2">
+                                <span><i class="fa-solid fa-eye text-primary"></i> {{ job.views }}</span>
+                                <span><i class="fa-solid fa-heart text-danger"></i> {{ job.likes }}</span>
+                                <span><i class="fa-solid fa-comment text-success"></i> {{ job.comments_list | length }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-3 bg-light border-top d-flex justify-content-between">
+                        <a href="/edit-job/{{ job.id }}" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-semibold"><i class="fa-solid fa-pen-to-square me-1"></i> Tahrirlash</a>
+                        <a href="/delete-job/{{ job.id }}" class="btn btn-outline-danger btn-sm rounded-pill px-3" onclick="return confirm('Haqiqatan ham bu e\'lonni o\'chirmoqchimisiz?')"><i class="fa-solid fa-trash me-1"></i> O'chirish</a>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-12 text-center py-5">
+                <div class="p-5 bg-light rounded-4 border">
+                    <p class="text-muted fw-semibold mb-3">Siz hali hech qanday e'lon bermagansiz.</p>
+                    <a href="/add-job" class="btn btn-primary rounded-pill px-4 fw-semibold">E'lon berish</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
