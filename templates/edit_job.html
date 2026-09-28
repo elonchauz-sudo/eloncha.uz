@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E'lonni Tahrirlash — eloncha.uz</title>
+    
+    <!-- Sayt logotipi (Favicon) -->
+    <link rel="icon" href="{{ url_for('static', filename='logo.png') }}" type="image/png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-white py-5">
+    <div class="container" style="max-width: 600px;">
+        <div class="card p-4 shadow-sm border rounded-4 bg-white">
+            <!-- Professional logotip va nom -->
+            <div class="text-center mb-4">
+                <div class="relative inline-flex items-center justify-center p-2">
+                    <div class="absolute w-12 h-12 bg-blue-900 rounded-full blur-md opacity-70 -top-1 -left-2"></div>
+                    <div class="absolute w-8 h-8 bg-indigo-900 rounded-full blur-sm opacity-60 -bottom-1 -right-2"></div>
+                    <img src="{{ url_for('static', filename='logo.png') }}" class="relative w-12 h-12 rounded-full object-cover border-2 border-blue-600 shadow-lg" alt="eloncha.uz logo">
+                </div>
+                <h3 class="fw-bold text-primary mt-2">E'lonni Tahrirlash</h3>
+            </div>
+
+            <form method="POST" enctype="multipart/form-data">
+                <!-- Asosiy kategoriya -->
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Asosiy kategoriya:</label>
+                    <select name="category" id="categorySelect" class="form-select rounded-3" required onchange="loadSubcategories()">
+                        {% for cat in categories.keys() %}
+                            <option value="{{ cat }}" {% if job.category == cat %}selected{% endif %}>{{ cat }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Sub-kategoriya -->
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Sub-kategoriya:</label>
+                    <select name="sub_category" id="subCategorySelect" class="form-select rounded-3" required>
+                        <option value="{{ job.sub_category }}">{{ job.sub_category }}</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Sarlavha:</label>
+                    <input type="text" name="title" class="form-control rounded-3" value="{{ job.title }}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Kompaniya / Ism:</label>
+                    <input type="text" name="company" class="form-control rounded-3" value="{{ job.company }}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Narxi / Maoshi:</label>
+                    <input type="text" name="salary" class="form-control rounded-3" value="{{ job.salary }}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Hudud:</label>
+                    <select name="region" class="form-select rounded-3" required>
+                        {% for reg in regions %}
+                            <option value="{{ reg }}" {% if job.region == reg %}selected{% endif %}>{{ reg }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Telefon raqam:</label>
+                    <input type="text" name="phone" class="form-control rounded-3" value="{{ job.phone }}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Tavsif:</label>
+                    <textarea name="description" class="form-control rounded-3" rows="3" required>{{ job.description }}</textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-semibold">Saqlash</button>
+            </form>
+
+            <div class="text-center mt-3">
+                <a href="/admin" class="text-decoration-none small text-secondary">Admin panelga qaytish</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function loadSubcategories() {
+            const category = document.getElementById('categorySelect').value;
+            const subSelect = document.getElementById('subCategorySelect');
+            subSelect.innerHTML = '<option value="">Yuklanmoqda...</option>';
+
+            if (!category) return;
+
+            fetch(`/get-subcategories/${encodeURIComponent(category)}`)
+                .then(response => response.json())
+                .then(data => {
+                    subSelect.innerHTML = '';
+                    data.forEach(sub => {
+                        const opt = document.createElement('option');
+                        opt.value = sub;
+                        opt.textContent = sub;
+                        subSelect.appendChild(opt);
+                    });
+                });
+        }
+    </script>
+</body>
+</html>
